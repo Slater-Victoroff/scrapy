@@ -1,6 +1,9 @@
 import time
-from cookielib import CookieJar as _CookieJar, DefaultCookiePolicy, IPV4_RE
+from six.moves.http_cookiejar import (
+    CookieJar as _CookieJar, DefaultCookiePolicy, IPV4_RE
+)
 from scrapy.utils.httpobj import urlparse_cached
+from scrapy.utils.python import to_native_str
 
 
 class CookieJar(object):
@@ -133,6 +136,11 @@ class WrappedRequest(object):
         """
         return self.request.meta.get('is_unverifiable', False)
 
+    # python3 uses request.unverifiable
+    @property
+    def unverifiable(self):
+        return self.is_unverifiable()
+
     def get_origin_req_host(self):
         return urlparse_cached(self.request).hostname
 
@@ -158,5 +166,10 @@ class WrappedResponse(object):
     def info(self):
         return self
 
+    # python2 cookiejars calls getheaders
     def getheaders(self, name):
         return self.response.headers.getlist(name)
+
+    # python3 cookiejars calls get_all
+    def get_all(self, name, default=None):
+        return [to_native_str(v) for v in self.response.headers.getlist(name)]
