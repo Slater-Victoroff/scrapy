@@ -50,7 +50,7 @@ class Request(object_ref):
         if not isinstance(url, six.string_types):
             raise TypeError('Request url must be str or unicode, got %s:' % type(url).__name__)
 
-        url = to_native_str(url, self.encoding)
+        url = to_native_str(url.strip(), self.encoding)
         self._url = escape_ajax(safe_url_string(url))
 
         if ':' not in self._url:
